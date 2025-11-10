@@ -4,6 +4,21 @@ namespace C__demo
 {
     internal class Program
     {
+        static int validIntegerInput(int topLimit, int bottomLimit)
+        {
+            int menuInput;
+            while (true)
+            {
+                string input = Console.ReadLine();
+
+                if (int.TryParse(input, out menuInput) && menuInput >= 0 && menuInput <= 2)
+                    break;
+
+                Console.Write("Neispravan unos, unesi broj {0}-{1}: ", bottomLimit, topLimit);
+            }
+            return menuInput;
+        }
+
         static void Main(string[] args)
         {
             Console.WriteLine("APLIKACIJA ZA EVIDENCIJU GORIVA");
@@ -31,16 +46,8 @@ namespace C__demo
 
 
             Console.Write("Odabir: ");
-            int menuInput;
-            while(true)
-            {
-                string input = Console.ReadLine();
+            int menuInput = validIntegerInput(0, 2);
 
-                if (int.TryParse(input, out menuInput) && menuInput >= 0 && menuInput <= 2)
-                    break;
-
-                Console.Write("Neispravan unos, unesi broj 0-2: ");
-            }
         }
     }
 }
