@@ -4,27 +4,60 @@ namespace C__demo
 {
     internal class Program
     {
-        static int validIntegerInput(int topLimit, int bottomLimit)
+        static void writeMainMenu()
         {
-            int menuInput;
+            Console.WriteLine();
+            Console.WriteLine("1 - Korisnici");
+            Console.WriteLine("2 - Putovanja");
+            Console.WriteLine("0 - Izlaz iz aplikacije");
+            Console.WriteLine();
+            Console.Write("Odabir: ");
+        }
+
+        static void writeUserMenu()
+        {
+            Console.WriteLine();
+            Console.WriteLine("1 - Unos novog korisnika");
+            Console.WriteLine("2 - Brisanje korisnika");
+            Console.WriteLine("3 - Uređivanje korisnika");
+            Console.WriteLine("4 - Pregled svih korisnika");
+            Console.WriteLine("0 - Povratak na glavni izbornik");
+            Console.WriteLine();
+            Console.Write("Odabir: ");
+        }
+
+        static void writeTripMenu()
+        {
+            Console.WriteLine();
+            Console.WriteLine("1 - Unos novog putovanja");
+            Console.WriteLine("2 - Brisanje putovanja");
+            Console.WriteLine("3 - Uređivanje postojećeg putovanja");
+            Console.WriteLine("4 - Pregled svih putovanja");
+            Console.WriteLine("5 - Izvještaji i analize");
+            Console.WriteLine("0 - Povratak na glavni izbornik");
+            Console.WriteLine();
+
+            Console.Write("Odabir: ");
+        }
+
+        static int validIntegerInput(int bottomLimit, int topLimit)
+        {
+            int intInput;
             while (true)
             {
                 string input = Console.ReadLine();
 
-                if (int.TryParse(input, out menuInput) && menuInput >= 0 && menuInput <= 2)
+                if (int.TryParse(input, out intInput) && intInput >= bottomLimit && intInput <= topLimit)
                     break;
 
                 Console.Write("Neispravan unos, unesi broj {0}-{1}: ", bottomLimit, topLimit);
             }
-            return menuInput;
+            return intInput;
         }
 
         static void Main(string[] args)
         {
             Console.WriteLine("APLIKACIJA ZA EVIDENCIJU GORIVA");
-            Console.WriteLine("1 - Korisnici");
-            Console.WriteLine("2 - Putovanja");
-            Console.WriteLine("0 - Izlaz iz aplikacije");
 
             var trips = new List<(int id, DateTime dateOfTravel, double kmPassed, double fuelUsed, double fuelPrice, double fuelCost)>
             {
@@ -45,16 +78,7 @@ namespace C__demo
             };
 
 
-            Console.Write("Odabir: ");
-            int menuInput = validIntegerInput(0, 2);
-
-
-            if (menuInput == 0)
-                return;
-
-            
-
-
+           
         }
     }
 }
