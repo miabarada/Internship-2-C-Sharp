@@ -48,6 +48,13 @@ namespace C__demo
             Console.Write("Odabir: ");
             int menuInput = validIntegerInput(0, 2);
 
+
+            if (menuInput == 0)
+                return;
+
+            
+
+
         }
     }
 }
