@@ -40,6 +40,21 @@ namespace C__demo
             Console.Write("Odabir: ");
         }
 
+        static int validIntegerInput()
+        {
+            int intInput;
+            while (true)
+            {
+                string input = Console.ReadLine();
+
+                if (int.TryParse(input, out intInput))
+                    break;
+
+                Console.Write("Neispravan unos, unesi pozitivan broj: ");
+            }
+            return intInput;
+        }
+
         static int validIntegerInput(int bottomLimit, int topLimit)
         {
             int intInput;
@@ -53,6 +68,54 @@ namespace C__demo
                 Console.Write("Neispravan unos, unesi broj {0}-{1}: ", bottomLimit, topLimit);
             }
             return intInput;
+        }
+
+        static DateTime validDateInput()
+        {
+            DateTime dateInput;
+            while(true)
+            {
+                string input = Console.ReadLine();
+
+                if(DateTime.TryParse(input, out dateInput) && dateInput <= DateTime.Now)
+                    break;
+
+                Console.Write("Neispravan unos, unesi datum do {0}: ", DateTime.Now);
+            }
+            return dateInput;
+        }
+
+        static void addNewUser(List<(int, string, string, DateTime, List<(int, DateTime, double, double, double, double)>)> list)
+        {
+            Console.Write("Unesi id novog korisnika: ");
+            int id = validIntegerInput();
+            Console.Write("Unesi ime novog korisnika: ");
+            string name = Console.ReadLine();
+            Console.Write("Unesi prezime novog korisnika: ");
+            string surname = Console.ReadLine();
+            Console.Write("Unesi datum rođenja novog korisnika: ");
+            DateTime dateOfBirth = validDateInput();
+            var trips = new List<(int, DateTime, double, double, double, double)>();
+
+            list.Add((id, name, surname, dateOfBirth, trips));
+        }
+
+        static void userMenu(List<(int, string, string, DateTime, List<(int, DateTime, double, double, double, double)>)> list)
+        {
+            while (true)
+            {
+                writeUserMenu();
+                int userInput = validIntegerInput(0, 4);
+
+                switch(userInput)
+                {
+                    case 0:
+                        return;
+                    case 1:
+                        addNewUser(list);
+                        break;
+                }
+            }
         }
 
         static void Main(string[] args)
@@ -78,7 +141,17 @@ namespace C__demo
             };
 
 
-           
+            while (true)
+            {
+                writeMainMenu();
+                int mainInput = validIntegerInput(0, 2);
+
+                if (mainInput == 0)
+                    return;
+
+                if (mainInput == 1)
+                    userMenu(users);
+            }
         }
     }
 }
