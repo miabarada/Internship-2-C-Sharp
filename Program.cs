@@ -1,4 +1,5 @@
-﻿using System.Reflection;
+﻿using System.Collections.Generic;
+using System.Reflection;
 
 namespace C__demo
 {
@@ -38,6 +39,24 @@ namespace C__demo
             Console.WriteLine();
 
             Console.Write("Odabir: ");
+        }
+
+        static void writeDeleteUserMenu()
+        {
+            Console.WriteLine();
+            Console.WriteLine("Odaberi način brisanja korisnika:");
+            Console.WriteLine("\t1 - briši po id-u");
+            Console.WriteLine("\t2 - briši po imenu i prezimenu");
+            Console.WriteLine("\t0 - odustani");
+            Console.Write("Odabir: ");
+        }
+
+        static void writeAllUsers(List<(int, string, string, DateTime, List<(int, int, DateTime, double, double, double, double)>)> list)
+        {
+            Console.WriteLine();
+            Console.WriteLine("{0,-2} - ime i prezime svih korisnika: ", "id");
+            foreach (var user in list)
+                Console.WriteLine("{0,-2} - {1} {2}", user.Item1, user.Item2, user.Item3);
         }
 
         static int validIntegerInput()
@@ -85,7 +104,25 @@ namespace C__demo
             return dateInput;
         }
 
-        static int uniqueId(List<(int, string, string, DateTime, List<(int, DateTime, double, double, double, double)>)> list)
+        static string[] validNameAndSurnameInput()
+        {
+            string[] nameAndSurname;
+
+            while(true)
+            {
+                var input = Console.ReadLine();
+                nameAndSurname = input.ToUpper().Split(" ");
+
+                if (nameAndSurname.Length == 2)
+                    break;
+
+                Console.Write("Unesi ime i prezime u formatu 'Ime prezime': ");
+            }
+
+            return nameAndSurname;
+        }
+
+        static int uniqueId(List<(int, string, string, DateTime, List<(int, int, DateTime, double, double, double, double)>)> list)
         {
             int id;
             while (true)
@@ -99,24 +136,7 @@ namespace C__demo
             } 
             return id;
         }
-
-        static void addNewUser(List<(int, string, string, DateTime, List<(int, DateTime, double, double, double, double)>)> list)
-        {
-            Console.WriteLine();
-            Console.Write("Unesi id novog korisnika: ");
-            int id = uniqueId(list);
-            Console.Write("Unesi ime novog korisnika: ");
-            string name = Console.ReadLine();
-            Console.Write("Unesi prezime novog korisnika: ");
-            string surname = Console.ReadLine();
-            Console.Write("Unesi datum rođenja novog korisnika: ");
-            DateTime dateOfBirth = validDateInput();
-            var trips = new List<(int, DateTime, double, double, double, double)>();
-
-            list.Add((id, name, surname, dateOfBirth, trips));
-        }
-
-        static int idInList(List<(int, string, string, DateTime, List<(int, DateTime, double, double, double, double)>)> list)
+        static int idInList(List<(int, string, string, DateTime, List<(int, int, DateTime, double, double, double, double)>)> list)
         {
             int id;
             while (true)
@@ -131,12 +151,27 @@ namespace C__demo
             return id;
         }
 
-        static void deleteUser(List<(int, string, string, DateTime, List<(int, DateTime, double, double, double, double)>)> list)
+        static string[] nameAndSurnameInList(List<(int, string, string, DateTime, List<(int, int, DateTime, double, double, double, double)>)> list)
         {
-            Console.WriteLine();
-            Console.WriteLine("Id, ime i prezime svih korisnika:");
-            foreach (var user in list)
-                Console.WriteLine("{0} - {1} {2}", user.Item1, user.Item2, user.Item3);
+            string[] nameAndSurname;
+
+            while(true)
+            {
+                nameAndSurname = validNameAndSurnameInput();
+                var nameAndSurnameInList = list.Where(person => person.Item2.ToUpper().Equals(nameAndSurname[0]) && person.Item3.ToUpper().Equals(nameAndSurname[1])).ToList();
+
+                if(nameAndSurnameInList.Count != 0)
+                    break;
+
+                Console.WriteLine("Unesi ime i prezime postojećeg korisnika: ");
+            }
+
+            return nameAndSurname;
+        }
+
+        static void deleteUserById(List<(int, string, string, DateTime, List<(int, int, DateTime, double, double, double, double)>)> list)
+        {
+            writeAllUsers(list);
 
             Console.Write("Upiši id korisnika kojeg želiš izbrisati: ");
             var idToDelete = idInList(list);
@@ -144,7 +179,46 @@ namespace C__demo
             list.RemoveAll(person => person.Item1 == idToDelete);
         }
 
-        static void userMenu(List<(int, string, string, DateTime, List<(int, DateTime, double, double, double, double)>)> list)
+        static void deleteUserByNameAndSurname(List<(int, string, string, DateTime, List<(int, int, DateTime, double, double, double, double)>)> list)
+        {
+            writeAllUsers(list);
+
+            Console.Write("Upiši ime i prezime korisnika kojeg želiš izbrisati: ");
+            var nameAndSurnameToDelete = nameAndSurnameInList(list);
+
+            list.RemoveAll(person => person.Item2.ToUpper().Equals(nameAndSurnameToDelete));
+        }
+
+
+        static void addNewUser(List<(int, string, string, DateTime, List<(int, int, DateTime, double, double, double, double)>)> list)
+        {
+            Console.WriteLine();
+            Console.Write("Unesi id novog korisnika: ");
+            int id = uniqueId(list);
+            Console.Write("Unesi ime novog korisnika: ");
+            string name = Console.ReadLine();
+            Console.Write("Unesi prezime novog korisnika: ");
+            string surname = Console.ReadLine();
+            Console.Write("Unesi datum rođenja novog korisnika: ");
+            DateTime dateOfBirth = validDateInput();
+            var trips = new List<(int, int, DateTime, double, double, double, double)>();
+
+            list.Add((id, name, surname, dateOfBirth, trips));
+        }
+
+        static void deleteUser(List<(int, string, string, DateTime, List<(int, int, DateTime, double, double, double, double)>)> list)
+        {
+            writeDeleteUserMenu();
+            int input = validIntegerInput(0, 2);
+
+            if(input == 1)
+                deleteUserById(list);
+
+            if(input == 2)
+                deleteUserByNameAndSurname(list);
+        }
+
+        static void userMenu(List<(int, string, string, DateTime, List<(int, int, DateTime, double, double, double, double)>)> list)
         {
             while (true)
             {
@@ -169,22 +243,22 @@ namespace C__demo
         {
             Console.WriteLine("APLIKACIJA ZA EVIDENCIJU GORIVA");
 
-            var trips = new List<(int id, DateTime dateOfTravel, double kmPassed, double fuelUsed, double fuelPrice, double fuelCost)>
+            var trips = new List<(int userId, int tripId, DateTime dateOfTravel, double kmPassed, double fuelUsed, double fuelPrice, double fuelCost)>
             {
-                (1, new DateTime(2023, 1, 10), 200.4, 19.2, 1.7, 19.2 * 1.7),
-                (2, new DateTime(2024, 8, 15), 189.3, 20.1, 1.49, 20.1 * 1.49),
-                (3, new DateTime(2022, 4, 22), 400.29, 16.5, 1.53, 16.5 * 1.53),
-                (4, new DateTime(2025, 10, 25), 205.5, 12.4, 1.83, 12.4 * 1.83),
-                (2, new DateTime(2025, 7, 2), 60.3, 21.3, 1.39, 21.3 * 1.39),
-                (4, new DateTime(2024, 6, 4), 300.2, 31.2, 1.43, 31.2 * 1.43)
+                (1, 1, new DateTime(2023, 1, 10), 200.4, 19.2, 1.7, 19.2 * 1.7),
+                (2, 2, new DateTime(2024, 8, 15), 189.3, 20.1, 1.49, 20.1 * 1.49),
+                (3, 3, new DateTime(2022, 4, 22), 400.29, 16.5, 1.53, 16.5 * 1.53),
+                (4, 4, new DateTime(2025, 10, 25), 205.5, 12.4, 1.83, 12.4 * 1.83),
+                (2, 5, new DateTime(2025, 7, 2), 60.3, 21.3, 1.39, 21.3 * 1.39),
+                (4, 6, new DateTime(2024, 6, 4), 300.2, 31.2, 1.43, 31.2 * 1.43)
             };
 
-            var users = new List<(int id, string userName, string userSurname, DateTime dateOfBirth, List<(int, DateTime, double, double, double, double)>)>
+            var users = new List<(int id, string userName, string userSurname, DateTime dateOfBirth, List<(int, int, DateTime, double, double, double, double)>)>
             {
-                (1, "Andrea", "Barada", new DateTime(2005, 7, 15), trips.Where(t => t.id == 1).ToList()),
-                (2, "Mia", "Barada", new DateTime(2005, 7, 15), trips.Where(t => t.id == 2).ToList()),
-                (3, "Daria", "Pažanin", new DateTime(2005, 6, 26), trips.Where(t => t.id == 3).ToList()),
-                (4, "Sara", "Cigler", new DateTime(2006, 3, 10), trips.Where(t => t.id == 4).ToList())
+                (1, "Andrea", "Barada", new DateTime(2005, 7, 15), trips.Where(t => t.userId == 1).ToList()),
+                (2, "Mia", "Barada", new DateTime(2005, 7, 15), trips.Where(t => t.userId == 2).ToList()),
+                (3, "Daria", "Pažanin", new DateTime(2005, 6, 26), trips.Where(t => t.userId == 3).ToList()),
+                (4, "Sara", "Cigler", new DateTime(2006, 3, 10), trips.Where(t => t.userId == 4).ToList())
             };
 
 
