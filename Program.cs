@@ -80,15 +80,31 @@ namespace C__demo
                 if(DateTime.TryParse(input, out dateInput) && dateInput <= DateTime.Now)
                     break;
 
-                Console.Write("Neispravan unos, unesi datum do {0}: ", DateTime.Now);
+                Console.Write("Neispravan unos, unesi datum do {0}: ", DateTime.Now.ToShortDateString());
             }
             return dateInput;
         }
 
+        static int uniqueId(List<(int, string, string, DateTime, List<(int, DateTime, double, double, double, double)>)> list)
+        {
+            int id;
+            while (true)
+            {
+                id = validIntegerInput();
+                var idInList = list.Where(person => person.Item1 == id).ToList();
+                if (idInList.Count == 0)
+                    break;
+
+                Console.Write("Unesi jedinstveni id: ");
+            } 
+            return id;
+        }
+
         static void addNewUser(List<(int, string, string, DateTime, List<(int, DateTime, double, double, double, double)>)> list)
         {
+            Console.WriteLine();
             Console.Write("Unesi id novog korisnika: ");
-            int id = validIntegerInput();
+            int id = uniqueId(list);
             Console.Write("Unesi ime novog korisnika: ");
             string name = Console.ReadLine();
             Console.Write("Unesi prezime novog korisnika: ");
@@ -98,6 +114,34 @@ namespace C__demo
             var trips = new List<(int, DateTime, double, double, double, double)>();
 
             list.Add((id, name, surname, dateOfBirth, trips));
+        }
+
+        static int idInList(List<(int, string, string, DateTime, List<(int, DateTime, double, double, double, double)>)> list)
+        {
+            int id;
+            while (true)
+            {
+                id = validIntegerInput();
+                var idInList = list.Where(person => person.Item1 == id).ToList();
+                if (idInList.Count != 0)
+                    break;
+
+                Console.Write("Unesi id postojećeg korisnika: ");
+            }
+            return id;
+        }
+
+        static void deleteUser(List<(int, string, string, DateTime, List<(int, DateTime, double, double, double, double)>)> list)
+        {
+            Console.WriteLine();
+            Console.WriteLine("Id, ime i prezime svih korisnika:");
+            foreach (var user in list)
+                Console.WriteLine("{0} - {1} {2}", user.Item1, user.Item2, user.Item3);
+
+            Console.Write("Upiši id korisnika kojeg želiš izbrisati: ");
+            var idToDelete = idInList(list);
+
+            list.RemoveAll(person => person.Item1 == idToDelete);
         }
 
         static void userMenu(List<(int, string, string, DateTime, List<(int, DateTime, double, double, double, double)>)> list)
@@ -113,6 +157,9 @@ namespace C__demo
                         return;
                     case 1:
                         addNewUser(list);
+                        break;
+                    case 2:
+                        deleteUser(list);
                         break;
                 }
             }
