@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Reflection;
+using System.Reflection.Metadata;
 
 namespace C__demo
 {
@@ -57,6 +58,7 @@ namespace C__demo
             Console.WriteLine("{0,-2} - ime i prezime svih korisnika: ", "id");
             foreach (var user in list)
                 Console.WriteLine("{0,-2} - {1} {2}", user.Item1, user.Item2, user.Item3);
+            Console.WriteLine();
         }
 
         static int validIntegerInput()
@@ -99,9 +101,25 @@ namespace C__demo
                 if(DateTime.TryParse(input, out dateInput) && dateInput <= DateTime.Now)
                     break;
 
-                Console.Write("Neispravan unos, unesi datum do {0}: ", DateTime.Now.ToShortDateString());
+                Console.Write("Neispravan unos, unesi datum do {0} u formatu YYYY-MM-DD: ", DateTime.Now.ToShortDateString());
             }
             return dateInput;
+        }
+
+        static string validStringInput()
+        {
+            string name;
+
+            while (true)
+            {
+                name = Console.ReadLine();
+
+                if (name.All(char.IsLetter))
+                    break;
+
+                Console.Write("Unesi ime/prezime koje sadrži samo slova: ");
+            }
+            return name;
         }
 
         static string[] validNameAndSurnameInput()
@@ -163,7 +181,7 @@ namespace C__demo
                 if(nameAndSurnameInList.Count != 0)
                     break;
 
-                Console.WriteLine("Unesi ime i prezime postojećeg korisnika: ");
+                Console.Write("Unesi ime i prezime postojećeg korisnika: ");
             }
 
             return nameAndSurname;
@@ -196,9 +214,9 @@ namespace C__demo
             Console.Write("Unesi id novog korisnika: ");
             int id = uniqueId(list);
             Console.Write("Unesi ime novog korisnika: ");
-            string name = Console.ReadLine();
+            string name = validStringInput();
             Console.Write("Unesi prezime novog korisnika: ");
-            string surname = Console.ReadLine();
+            string surname = validStringInput();
             Console.Write("Unesi datum rođenja novog korisnika: ");
             DateTime dateOfBirth = validDateInput();
             var trips = new List<(int, int, DateTime, double, double, double, double)>();
@@ -218,6 +236,46 @@ namespace C__demo
                 deleteUserByNameAndSurname(list);
         }
 
+        static void editUser(List<(int, string, string, DateTime, List<(int, int, DateTime, double, double, double, double)>)> list)
+        {
+            writeAllUsers(list);
+            Console.Write("Upiši id korisnika čije podatke želiš urediti: ");
+            var id = idInList(list);
+
+            int indexOfItem = 0;
+            foreach (var user in list)
+                if (user.Item1 == id)
+                    indexOfItem = list.IndexOf(user);
+                    
+            var userToEdit = list.ElementAt(indexOfItem);
+            list.RemoveAt(indexOfItem);
+
+            Console.Write("Unesi novo ime korisnika ili X ako ne želiš mijenjati ime: ");
+            string name = validStringInput();
+            if (name.Equals("X"))
+                name = userToEdit.Item2;
+
+            Console.Write("Unesi novo prezime korisnika ili X ako ne želiš mijenjati prezime: ");
+            string surname = validStringInput();
+            if (surname.Equals("X"))
+                surname = userToEdit.Item3;
+
+            Console.Write("Unesi datum rođenja korisnika ili 1111-11-11 ako ne želiš mijenjati datum rođenja: ");
+            DateTime dateOfBirth = validDateInput();
+            if (dateOfBirth.Equals(0000-00-00))
+                dateOfBirth = userToEdit.Item4;
+
+            var trips = new List<(int, int, DateTime, double, double, double, double)>();
+
+            list.Insert(indexOfItem, (id, name, surname, dateOfBirth, trips));
+
+        }
+
+        static void printAllUsers(List<(int, string, string, DateTime, List<(int, int, DateTime, double, double, double, double)>)> list)
+        {
+
+        }
+
         static void userMenu(List<(int, string, string, DateTime, List<(int, int, DateTime, double, double, double, double)>)> list)
         {
             while (true)
@@ -234,6 +292,14 @@ namespace C__demo
                         break;
                     case 2:
                         deleteUser(list);
+                        break;
+                    case 3:
+                        editUser(list);
+                        break;
+                    case 4:
+                        printAllUsers(list);
+                        break;
+                    default:
                         break;
                 }
             }
