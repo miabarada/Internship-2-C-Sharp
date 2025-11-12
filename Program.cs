@@ -49,6 +49,19 @@ namespace C__demo
             Console.WriteLine("\t1 - briši po id-u");
             Console.WriteLine("\t2 - briši po imenu i prezimenu");
             Console.WriteLine("\t0 - odustani");
+            Console.WriteLine();
+            Console.Write("Odabir: ");
+        }
+
+        static void printAllUsersMenu(List<(int, string, string, DateTime, List<(int, int, DateTime, double, double, double, double)>)> list)
+        {
+            Console.WriteLine();
+            Console.WriteLine("Odaberi način ispisivanja korisnika:");
+            Console.WriteLine("\t1 - ispiši sve korisnike");
+            Console.WriteLine("\t2 - ispiši sve korisnike koji imaju više od 20 godina");
+            Console.WriteLine("\t3 - ispiši sve korisnike koji imaju barem 2 putovanja");
+            Console.WriteLine("\t0 - odustani");
+            Console.WriteLine();
             Console.Write("Odabir: ");
         }
 
@@ -59,6 +72,32 @@ namespace C__demo
             foreach (var user in list)
                 Console.WriteLine("{0,-2} - {1} {2}", user.Item1, user.Item2, user.Item3);
             Console.WriteLine();
+        }
+
+        static void writeAllUsersFormatted(List<(int, string, string, DateTime, List<(int, int, DateTime, double, double, double, double)>)> list)
+        {
+            Console.WriteLine();
+            Console.WriteLine("Svi korisnici:");
+            foreach(var user in list)
+                Console.WriteLine("{0,-5} - {1} - {2} - {3}", user.Item1, user.Item2, user.Item3, user.Item4.ToShortDateString());
+        }
+
+        static void writeAllUsersOlderThan20(List<(int, string, string, DateTime, List<(int, int, DateTime, double, double, double, double)>)> list)
+        {
+            Console.WriteLine();
+            Console.WriteLine("Svi korisnici koji imaju više od 20 godina:");
+            foreach(var user in list)
+                if(DateTime.Now.Year - user.Item4.Year >= 20 && DateTime.Now.Month > user.Item4.Month && DateTime.Now.Day > user.Item4.Day)
+                    Console.WriteLine("{0} - {1} {2}, {3}", user.Item1, user.Item2, user.Item3, user.Item4.ToShortDateString());
+        }
+
+        static void writeAllUsersWithMultipleTrips(List<(int, string, string, DateTime, List<(int, int, DateTime, double, double, double, double)>)> list)
+        {
+            Console.WriteLine();
+            Console.WriteLine("Svi korisnici koji imaju barem 2 godina:");
+            foreach (var user in list)
+                if (user.Item5.Count() >= 2)
+                    Console.WriteLine("{0} - {1} {2}, {3}", user.Item1, user.Item2, user.Item3, user.Item4.ToShortDateString());
         }
 
         static int validIntegerInput()
@@ -252,17 +291,17 @@ namespace C__demo
 
             Console.Write("Unesi novo ime korisnika ili X ako ne želiš mijenjati ime: ");
             string name = validStringInput();
-            if (name.Equals("X"))
+            if (name.ToUpper().Equals("X"))
                 name = userToEdit.Item2;
 
             Console.Write("Unesi novo prezime korisnika ili X ako ne želiš mijenjati prezime: ");
             string surname = validStringInput();
-            if (surname.Equals("X"))
+            if (surname.ToUpper().Equals("X"))
                 surname = userToEdit.Item3;
 
-            Console.Write("Unesi datum rođenja korisnika ili 1111-11-11 ako ne želiš mijenjati datum rođenja: ");
+            Console.Write("Unesi novi datum rođenja korisnika ili 1111-11-11 ako ne želiš mijenjati datum rođenja: ");
             DateTime dateOfBirth = validDateInput();
-            if (dateOfBirth.Equals(0000-00-00))
+            if (dateOfBirth.Equals(1111-11-11))
                 dateOfBirth = userToEdit.Item4;
 
             var trips = new List<(int, int, DateTime, double, double, double, double)>();
@@ -273,7 +312,15 @@ namespace C__demo
 
         static void printAllUsers(List<(int, string, string, DateTime, List<(int, int, DateTime, double, double, double, double)>)> list)
         {
+            printAllUsersMenu(list);
+            int input = validIntegerInput(0, 3);
 
+            if (input == 1)
+                writeAllUsersFormatted(list);
+            if (input == 2)
+                writeAllUsersOlderThan20(list);
+            if (input == 3)
+                writeAllUsersWithMultipleTrips(list);
         }
 
         static void userMenu(List<(int, string, string, DateTime, List<(int, int, DateTime, double, double, double, double)>)> list)
