@@ -65,6 +65,18 @@ namespace C__demo
             Console.Write("Odabir: ");
         }
 
+        static void writeDeleteTripMenu()
+        {
+            Console.WriteLine();
+            Console.WriteLine("Odaberi način brisanja putovanja:");
+            Console.WriteLine("\t1 - briši po id-u");
+            Console.WriteLine("\t2 - briši po sva putovanja skuplja od nekog iznosa: ");
+            Console.WriteLine("\t3 - briši po sva putovanja jeftinija od nekog iznosa: ");
+            Console.WriteLine("\t0 - odustani");
+            Console.WriteLine();
+            Console.Write("Odabir: ");
+        }
+
         static void writeAllUsers(List<(int, string, string, DateTime, List<(int, int, DateTime, double, double, double, double)>)> list)
         {
             Console.WriteLine();
@@ -72,6 +84,14 @@ namespace C__demo
             foreach (var user in list)
                 Console.WriteLine("{0,-2} - {1} {2}", user.Item1, user.Item2, user.Item3);
             Console.WriteLine();
+        }
+
+        static void writeAllTrips(List<(int, int, DateTime, double, double, double, double)> trips)
+        {
+            Console.WriteLine();
+            Console.WriteLine("{0,-2} - datum polaska, broj kilometara i trošak svih putovanja", "id");
+            foreach (var trip in trips)
+                Console.WriteLine("{0,-2} - {1}, {2}km, {3} EUR", trip.Item2, trip.Item3.ToShortDateString(), trip.Item4, trip.Item7);
         }
 
         static void writeAllUsersFormatted(List<(int, string, string, DateTime, List<(int, int, DateTime, double, double, double, double)>)> list)
@@ -234,7 +254,7 @@ namespace C__demo
                 if (idInList.Count != 0)
                     break;
 
-                Console.Write("Unesi id postojećeg korisnika: ");
+                Console.Write("Unesi postojeći id: ");
             }
             return id;
         }
@@ -245,11 +265,11 @@ namespace C__demo
             while (true)
             {
                 id = validIntegerInput();
-                var idInList = list.Where(trip => trip.Item1 == id).ToList();
+                var idInList = list.Where(trip => trip.Item2 == id).ToList();
                 if (idInList.Count != 0)
                     break;
 
-                Console.Write("Unesi id postojećeg korisnika: ");
+                Console.Write("Unesi postojeći id: ");
             }
             return id;
         }
@@ -282,6 +302,20 @@ namespace C__demo
             list.RemoveAll(person => person.Item1 == idToDelete);
         }
 
+        static void deleteTripById(List<(int, int, DateTime, double, double, double, double)> trips, List<(int, string, string, DateTime, List<(int, int, DateTime, double, double, double, double)>)> users)
+        {
+            writeAllTrips(trips);
+
+            Console.Write("Upiši id putovanja koje želiš izbrisati: ");
+            var idToDelete = idInList(trips);
+
+            var trip = trips.Where(trip => trip.Item2 == idToDelete).FirstOrDefault();
+            var user = users.Where(user => user.Item5.Contains(trip)).FirstOrDefault();
+
+            user.Item5.Remove(trip);
+            trips.Remove(trip);
+        }
+
         static void deleteUserByNameAndSurname(List<(int, string, string, DateTime, List<(int, int, DateTime, double, double, double, double)>)> list)
         {
             writeAllUsers(list);
@@ -290,6 +324,36 @@ namespace C__demo
             var nameAndSurnameToDelete = nameAndSurnameInList(list);
 
             list.RemoveAll(person => person.Item2.ToUpper().Equals(nameAndSurnameToDelete));
+        }
+
+        static void deleteTripsMoreExpensiveThan(List<(int, int, DateTime, double, double, double, double)> trips, List<(int, string, string, DateTime, List<(int, int, DateTime, double, double, double, double)>)> users)
+        {
+            writeAllTrips(trips);
+
+            Console.Write("Upiši najveći trošak koji putovanja mogu imati: ");
+            var highestCost = validDoubleInput();
+
+            var tripsMoreExpensiveThan = trips.Where(trip => trip.Item7 > highestCost).ToList();
+            foreach (var trip in tripsMoreExpensiveThan)
+            {
+                var user = users.Where(user => user.Item5.Contains(trip)).FirstOrDefault();
+                user.Item5.Remove(trip);
+                trips.Remove(trip);
+            }
+        }
+
+        static void deleteTripsLessExpensiveThan(List<(int, int, DateTime, double, double, double, double)> trips, List<(int, string, string, DateTime, List<(int, int, DateTime, double, double, double, double)>)> users)
+        {
+            Console.Write("Upiši najveći trošak koji putovanja mogu imati: ");
+            var lowestCost = validDoubleInput();
+
+            var tripsLessExpensiveThan = trips.Where(trip => trip.Item7 < lowestCost).ToList();
+            foreach (var trip in tripsLessExpensiveThan)
+            {
+                var user = users.Where(user => user.Item5.Contains(trip)).FirstOrDefault();
+                user.Item5.Remove(trip);
+                trips.Remove(trip);
+            }
         }
 
 
@@ -347,7 +411,7 @@ namespace C__demo
 
             Console.Write("Unesi novi datum rođenja korisnika ili 1111-11-11 ako ne želiš mijenjati datum rođenja: ");
             DateTime dateOfBirth = validDateInput();
-            if (dateOfBirth.Equals(1111 - 11 - 11))
+            if (dateOfBirth.Equals(1111-11-11))
                 dateOfBirth = userToEdit.Item4;
 
             var trips = new List<(int, int, DateTime, double, double, double, double)>();
@@ -372,15 +436,15 @@ namespace C__demo
         static void addNewTrip(List<(int, int, DateTime, double, double, double, double)> trips, List<(int, string, string, DateTime, List<(int, int, DateTime, double, double, double, double)>)> users)
         {
             writeAllUsers(users);
-            Console.WriteLine("Unesi id korisnika kojemu želiš dodati putovanje: ");
+            Console.Write("Unesi id korisnika kojemu želiš dodati putovanje: ");
             var input = idInList(users);
             var user = users.Where(user => user.Item1 == input).FirstOrDefault();
 
-            Console.Write("Unesi id putovanja ");
+            Console.Write("Unesi id putovanja: ");
             var idOfTrip = uniqueId(trips);
             Console.Write("Unesi datum (YYYY-MM-DD): ");
             DateTime dateOfTravel = validDateInput();
-            Console.Write("Unesi kilometražu ");
+            Console.Write("Unesi kilometražu: ");
             double kmPassed = validDoubleInput();
             Console.Write("Unesi potrošeno gorivo (L): ");
             double fuelUsed = validDoubleInput();
@@ -392,6 +456,26 @@ namespace C__demo
 
             trips.Add(trip);
             user.Item5.Add(trip);
+        }
+
+        static void deleteTrips(List<(int, int, DateTime, double, double, double, double)> trips, List<(int, string, string, DateTime, List<(int, int, DateTime, double, double, double, double)>)> users)
+        {
+            writeDeleteTripMenu();
+            int input = validIntegerInput(0, 3);
+
+            if (input == 1)
+                deleteTripById(trips, users);
+
+            if (input == 2)
+                deleteTripsMoreExpensiveThan(trips, users);
+
+            if (input == 3)
+                deleteTripsLessExpensiveThan(trips, users);
+        }
+
+        static void editTrip(List<(int, int, DateTime, double, double, double, double)> trips)
+        {
+
         }
 
         static void userMenu(List<(int, string, string, DateTime, List<(int, int, DateTime, double, double, double, double)>)> list)
@@ -437,6 +521,13 @@ namespace C__demo
                     case 1:
                         addNewTrip(trips, users);
                         break;
+                    case 2:
+                        deleteTrips(trips, users);
+                        break;
+                    case 3:
+                        editTrip(trips, users);
+                        break;
+
                 }
             }
         }
