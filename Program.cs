@@ -78,7 +78,7 @@ namespace C__demo
         {
             Console.WriteLine();
             Console.WriteLine("Svi korisnici:");
-            foreach(var user in list)
+            foreach (var user in list)
                 Console.WriteLine("{0,-5} - {1} - {2} - {3}", user.Item1, user.Item2, user.Item3, user.Item4.ToShortDateString());
         }
 
@@ -86,8 +86,8 @@ namespace C__demo
         {
             Console.WriteLine();
             Console.WriteLine("Svi korisnici koji imaju više od 20 godina:");
-            foreach(var user in list)
-                if(DateTime.Now.Year - user.Item4.Year >= 20 && DateTime.Now.Month > user.Item4.Month && DateTime.Now.Day > user.Item4.Day)
+            foreach (var user in list)
+                if (DateTime.Now.Year - user.Item4.Year >= 20 && DateTime.Now.Month > user.Item4.Month && DateTime.Now.Day > user.Item4.Day)
                     Console.WriteLine("{0} - {1} {2}, {3}", user.Item1, user.Item2, user.Item3, user.Item4.ToShortDateString());
         }
 
@@ -115,6 +115,21 @@ namespace C__demo
             return intInput;
         }
 
+        static double validDoubleInput()
+        {
+            double doubleInput;
+            while (true)
+            {
+                string input = Console.ReadLine();
+
+                if (double.TryParse(input, out doubleInput))
+                    break;
+
+                Console.Write("Neispravan unos, unesi pozitivan decimalan broj: ");
+            }
+            return doubleInput;
+        }
+
         static int validIntegerInput(int bottomLimit, int topLimit)
         {
             int intInput;
@@ -133,11 +148,11 @@ namespace C__demo
         static DateTime validDateInput()
         {
             DateTime dateInput;
-            while(true)
+            while (true)
             {
                 string input = Console.ReadLine();
 
-                if(DateTime.TryParse(input, out dateInput) && dateInput <= DateTime.Now)
+                if (DateTime.TryParse(input, out dateInput) && dateInput <= DateTime.Now)
                     break;
 
                 Console.Write("Neispravan unos, unesi datum do {0} u formatu YYYY-MM-DD: ", DateTime.Now.ToShortDateString());
@@ -165,7 +180,7 @@ namespace C__demo
         {
             string[] nameAndSurname;
 
-            while(true)
+            while (true)
             {
                 var input = Console.ReadLine();
                 nameAndSurname = input.ToUpper().Split(" ");
@@ -190,9 +205,25 @@ namespace C__demo
                     break;
 
                 Console.Write("Unesi jedinstveni id: ");
-            } 
+            }
             return id;
         }
+
+        static int uniqueId(List<(int, int, DateTime, double, double, double, double)> list)
+        {
+            int id;
+            while (true)
+            {
+                id = validIntegerInput();
+                var idInList = list.Where(trip => trip.Item1 == id).ToList();
+                if (idInList.Count == 0)
+                    break;
+
+                Console.Write("Unesi jedinstveni id: ");
+            }
+            return id;
+        }
+
         static int idInList(List<(int, string, string, DateTime, List<(int, int, DateTime, double, double, double, double)>)> list)
         {
             int id;
@@ -208,16 +239,31 @@ namespace C__demo
             return id;
         }
 
+        static int idInList(List<(int, int, DateTime, double, double, double, double)> list)
+        {
+            int id;
+            while (true)
+            {
+                id = validIntegerInput();
+                var idInList = list.Where(trip => trip.Item1 == id).ToList();
+                if (idInList.Count != 0)
+                    break;
+
+                Console.Write("Unesi id postojećeg korisnika: ");
+            }
+            return id;
+        }
+
         static string[] nameAndSurnameInList(List<(int, string, string, DateTime, List<(int, int, DateTime, double, double, double, double)>)> list)
         {
             string[] nameAndSurname;
 
-            while(true)
+            while (true)
             {
                 nameAndSurname = validNameAndSurnameInput();
                 var nameAndSurnameInList = list.Where(person => person.Item2.ToUpper().Equals(nameAndSurname[0]) && person.Item3.ToUpper().Equals(nameAndSurname[1])).ToList();
 
-                if(nameAndSurnameInList.Count != 0)
+                if (nameAndSurnameInList.Count != 0)
                     break;
 
                 Console.Write("Unesi ime i prezime postojećeg korisnika: ");
@@ -268,10 +314,10 @@ namespace C__demo
             writeDeleteUserMenu();
             int input = validIntegerInput(0, 2);
 
-            if(input == 1)
+            if (input == 1)
                 deleteUserById(list);
 
-            if(input == 2)
+            if (input == 2)
                 deleteUserByNameAndSurname(list);
         }
 
@@ -285,7 +331,7 @@ namespace C__demo
             foreach (var user in list)
                 if (user.Item1 == id)
                     indexOfItem = list.IndexOf(user);
-                    
+
             var userToEdit = list.ElementAt(indexOfItem);
             list.RemoveAt(indexOfItem);
 
@@ -301,7 +347,7 @@ namespace C__demo
 
             Console.Write("Unesi novi datum rođenja korisnika ili 1111-11-11 ako ne želiš mijenjati datum rođenja: ");
             DateTime dateOfBirth = validDateInput();
-            if (dateOfBirth.Equals(1111-11-11))
+            if (dateOfBirth.Equals(1111 - 11 - 11))
                 dateOfBirth = userToEdit.Item4;
 
             var trips = new List<(int, int, DateTime, double, double, double, double)>();
@@ -323,6 +369,31 @@ namespace C__demo
                 writeAllUsersWithMultipleTrips(list);
         }
 
+        static void addNewTrip(List<(int, int, DateTime, double, double, double, double)> trips, List<(int, string, string, DateTime, List<(int, int, DateTime, double, double, double, double)>)> users)
+        {
+            writeAllUsers(users);
+            Console.WriteLine("Unesi id korisnika kojemu želiš dodati putovanje: ");
+            var input = idInList(users);
+            var user = users.Where(user => user.Item1 == input).FirstOrDefault();
+
+            Console.Write("Unesi id putovanja ");
+            var idOfTrip = uniqueId(trips);
+            Console.Write("Unesi datum (YYYY-MM-DD): ");
+            DateTime dateOfTravel = validDateInput();
+            Console.Write("Unesi kilometražu ");
+            double kmPassed = validDoubleInput();
+            Console.Write("Unesi potrošeno gorivo (L): ");
+            double fuelUsed = validDoubleInput();
+            Console.Write("Unesi cijenu goriva po litri: ");
+            double fuelPrice = validDoubleInput();
+
+            double fuelCost = fuelUsed * fuelPrice;
+            var trip = (input, idOfTrip, dateOfTravel, kmPassed, fuelUsed, fuelPrice, fuelCost);
+
+            trips.Add(trip);
+            user.Item5.Add(trip);
+        }
+
         static void userMenu(List<(int, string, string, DateTime, List<(int, int, DateTime, double, double, double, double)>)> list)
         {
             while (true)
@@ -330,7 +401,7 @@ namespace C__demo
                 writeUserMenu();
                 int userInput = validIntegerInput(0, 4);
 
-                switch(userInput)
+                switch (userInput)
                 {
                     case 0:
                         return;
@@ -347,6 +418,24 @@ namespace C__demo
                         printAllUsers(list);
                         break;
                     default:
+                        break;
+                }
+            }
+        }
+
+        static void tripsMenu(List<(int, int, DateTime, double, double, double, double)> trips, List<(int, string, string, DateTime, List<(int, int, DateTime, double, double, double, double)>)> users)
+        {
+            while (true)
+            {
+                writeTripMenu();
+                int tripsInput = validIntegerInput(0, 5);
+
+                switch (tripsInput)
+                {
+                    case 0:
+                        return;
+                    case 1:
+                        addNewTrip(trips, users);
                         break;
                 }
             }
@@ -385,6 +474,9 @@ namespace C__demo
 
                 if (mainInput == 1)
                     userMenu(users);
+
+                if (mainInput == 2)
+                    tripsMenu(trips, users);
             }
         }
     }
